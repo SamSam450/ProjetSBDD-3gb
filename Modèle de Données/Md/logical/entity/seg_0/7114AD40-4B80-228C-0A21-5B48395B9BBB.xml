@@ -1,0 +1,114 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="7114AD40-4B80-228C-0A21-5B48395B9BBB" name="Produits ">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-17 19:57:47 UTC</createdTime>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="Id_Produit " id="591AFD0D-711E-B570-5489-4AC7B98BEBA2">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-17 20:04:07 UTC</createdTime>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT026</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="Nom" id="E5EE9AB8-0E2C-DBF3-2759-F20F43D838C1">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-17 20:22:16 UTC</createdTime>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>50 CHAR</dataTypeSize>
+<ownDataTypeParameters>50 CHAR,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="Prix" id="2F4F17E2-90A2-E145-B4FF-702B1DA34116">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-17 20:24:36 UTC</createdTime>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<dataTypePrecision>6</dataTypePrecision>
+<dataTypeScale>2</dataTypeScale>
+<ownDataTypeParameters>,6,2</ownDataTypeParameters>
+</Attribute>
+<Attribute name="Qte Dispo " id="75B97203-67E2-DA39-62C9-AB5DE47698FD">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-23 14:06:38 UTC</createdTime>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT026</logicalDatatype>
+<dataTypePrecision>3</dataTypePrecision>
+<ownDataTypeParameters>,3,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="Description" id="714F73C6-A7BD-9C08-6509-466060AA6285">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-23 14:13:43 UTC</createdTime>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<nullsAllowed>true</nullsAllowed>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>2500 CHAR</dataTypeSize>
+<ownDataTypeParameters>2500 CHAR,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="Id_Catégorie" id="A7B71E7B-6260-B624-6D9F-907EE2EA6503">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-23 14:45:12 UTC</createdTime>
+<generatorID>8EA6B496-AFBD-6715-5B8B-54AA3B0C1842</generatorID>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<referedAttribute>DDAE8829-EDED-3E80-67B1-D6C6165B4465</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT026</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="2E87B208-8567-D6BE-7CE7-03C1F40BC4B7" name="Produits PK">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-17 20:18:36 UTC</createdTime>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>591AFD0D-711E-B570-5489-4AC7B98BEBA2</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

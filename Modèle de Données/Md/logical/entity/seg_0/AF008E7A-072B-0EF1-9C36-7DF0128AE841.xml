@@ -1,0 +1,59 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="AF008E7A-072B-0EF1-9C36-7DF0128AE841" name="Session">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-24 16:25:28 UTC</createdTime>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="Id_Session" id="C905F427-5674-2E38-2770-AC08EE6419A3">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-24 16:26:46 UTC</createdTime>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT026</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="Id_User" id="3F2FCFEF-2232-1EF3-1A06-57746BDA58E0">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-24 16:28:12 UTC</createdTime>
+<generatorID>E0687A8B-9B04-A2E6-44A4-EAA366C05EC7</generatorID>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<referedAttribute>90AB0757-81A2-9389-AE5F-8EF61E908C7C</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT026</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="F7B5972D-13A7-23F0-1E5E-5050F0187AFC" name="Session PK">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-24 16:27:10 UTC</createdTime>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>C905F427-5674-2E38-2770-AC08EE6419A3</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>

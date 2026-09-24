@@ -1,0 +1,72 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="993BD6AB-9952-D500-5677-6ED91982E59A" name="Droit">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-24 16:29:44 UTC</createdTime>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="Id_Droit" id="0CB86A88-8DE4-A6FF-C1CF-762165EB174C">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-24 16:30:16 UTC</createdTime>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT026</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="Nom" id="0B4BEEEF-4F4D-03E2-7877-197F5F11B25F">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-24 16:30:49 UTC</createdTime>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT024</logicalDatatype>
+<dataTypeSize>50 CHAR</dataTypeSize>
+<ownDataTypeParameters>50 CHAR,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="Id_Role" id="73990B71-9026-1365-E9FA-60180258C562">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-24 16:31:26 UTC</createdTime>
+<generatorID>24F6D334-92C4-D03F-1856-054658EE6D81</generatorID>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<referedAttribute>4666FDD5-D7E7-FBDC-9EFB-3B4AF2828D18</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT026</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="BF2ECECE-26DF-7CCF-A9B0-683DE4BCF0B1" name="Droit PK">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-24 16:30:46 UTC</createdTime>
+<ownerDesignName>Md</ownerDesignName>
+<engineerTo>
+<item key="AE53D60C-FEC2-5213-4F82-FC1A5B8F88CD" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>0CB86A88-8DE4-A6FF-C1CF-762165EB174C</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>
