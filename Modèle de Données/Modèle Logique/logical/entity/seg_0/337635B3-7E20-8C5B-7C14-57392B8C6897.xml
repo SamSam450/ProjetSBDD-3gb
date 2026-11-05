@@ -1,0 +1,86 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<Entity class="oracle.dbtools.crest.model.design.logical.Entity" directorySegmentName="seg_0" id="337635B3-7E20-8C5B-7C14-57392B8C6897" name="Produit_Commande">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-23 15:09:32 UTC</createdTime>
+<ownerDesignName>Modèle Logique</ownerDesignName>
+<engineerTo>
+<item key="C345E6E9-0813-B3A9-2E72-B4E97A7C930D" value="true"/>
+</engineerTo>
+<adequatelyNormalized>NO</adequatelyNormalized>
+<expectedVolumes>0</expectedVolumes>
+<fwdEngineeringStrategyName>Single Table</fwdEngineeringStrategyName>
+<growthPercent>0</growthPercent>
+<growthType>Year</growthType>
+<maxVolumes>9999999</maxVolumes>
+<minVolumes>0</minVolumes>
+<normalForm>Third</normalForm>
+<attributes itemClass="oracle.dbtools.crest.model.design.logical.Attribute">
+<Attribute name="Id_Produits_Commande" id="08DB35A0-6D96-974D-7B5F-14EE5F2A55FC">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-23 15:12:21 UTC</createdTime>
+<ownerDesignName>Modèle Logique</ownerDesignName>
+<engineerTo>
+<item key="C345E6E9-0813-B3A9-2E72-B4E97A7C930D" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="Qte_Commande" id="B3E4BEC4-A26B-D0FF-0770-DAF49E1316D7">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-23 15:15:30 UTC</createdTime>
+<ownerDesignName>Modèle Logique</ownerDesignName>
+<engineerTo>
+<item key="C345E6E9-0813-B3A9-2E72-B4E97A7C930D" value="true"/>
+</engineerTo>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT026</logicalDatatype>
+<dataTypePrecision>2</dataTypePrecision>
+<ownDataTypeParameters>,2,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="Id_Commande" id="07D83343-5EDA-82F4-81AA-35A63AACD9DE">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-30 15:34:24 UTC</createdTime>
+<generatorID>0FE963A1-B1C6-3683-954A-ABECE2449340</generatorID>
+<ownerDesignName>Modèle Logique</ownerDesignName>
+<engineerTo>
+<item key="C345E6E9-0813-B3A9-2E72-B4E97A7C930D" value="true"/>
+</engineerTo>
+<referedAttribute>B2B0D8CC-21AD-65DA-604C-BA00AA2C42ED</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+<Attribute name="Id_Produit " id="5187B9ED-314A-AFAD-E680-AE7E1295A7A4">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-30 15:40:33 UTC</createdTime>
+<generatorID>46DC3522-2BFD-1A1F-C22C-7BE5AB584688</generatorID>
+<ownerDesignName>Modèle Logique</ownerDesignName>
+<engineerTo>
+<item key="C345E6E9-0813-B3A9-2E72-B4E97A7C930D" value="true"/>
+</engineerTo>
+<referedAttribute>591AFD0D-711E-B570-5489-4AC7B98BEBA2</referedAttribute>
+<useDomainConstraints>false</useDomainConstraints>
+<use>1</use>
+<logicalDatatype>LOGDT019</logicalDatatype>
+<ownDataTypeParameters>,,</ownDataTypeParameters>
+</Attribute>
+</attributes>
+<identifiers itemClass="oracle.dbtools.crest.model.design.logical.CandidateKey">
+<identifier id="56CC561F-41FB-454B-6C5D-6ADAD226A983" name="Produit_Commande PK">
+<createdBy>samue</createdBy>
+<createdTime>2026-09-23 15:14:11 UTC</createdTime>
+<ownerDesignName>Modèle Logique</ownerDesignName>
+<engineerTo>
+<item key="C345E6E9-0813-B3A9-2E72-B4E97A7C930D" value="true"/>
+</engineerTo>
+<pk>true</pk>
+<usedAttributes>
+<attributeRef>08DB35A0-6D96-974D-7B5F-14EE5F2A55FC</attributeRef>
+</usedAttributes>
+</identifier>
+</identifiers>
+</Entity>
