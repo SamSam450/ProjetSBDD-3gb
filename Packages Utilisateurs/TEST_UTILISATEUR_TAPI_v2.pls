@@ -1,52 +1,15 @@
-CREATE OR REPLACE package test_utilisateur_tapi is
+create or replace PACKAGE BODY test_utilisateur_tapi IS
 
-   --%suite(test_utilisateur_tapi)
-    --%suitepath(alltests)
+   /**
 
-    -- GET
-    --%test(get_utilisateur_normal)
-    PROCEDURE get_utilisateur;
-
-    --%test(get_utilisateur_inexistant)
-    PROCEDURE get_utilisateur_inexistant;
-
-    -- DELETE
-    --%test(del_utilisateur_normal)
-    PROCEDURE del_utilisateur;
-
-    --%test(del_utilisateur_inexistant)
-    PROCEDURE del_utilisateur_inexistant;
-
-    --%test(del_utilisateur_id_null)
-    PROCEDURE del_utilisateur_id_null;
-
-    -- UPDATE
-    --%test(upd_utilisateur_normal)
-    PROCEDURE upd_utilisateur;
-
-    --%test(upd_utilisateur_id_null)
-    PROCEDURE upd_utilisateur_id_null;
-
-    --%test(upd_utilisateur_inexistant)
-    PROCEDURE upd_utilisateur_inexistant;
-
-    -- INSERT
-    --%test(ins_utilisateur_normal)
-    PROCEDURE ins_utilisateur;
-
-    --%test(ins_utilisateur_params_obligatoires_null)
-    PROCEDURE ins_utilisateur_ex_params_obli;
-
-END test_utilisateur_tapi;
-
-/
-
-
-CREATE OR REPLACE PACKAGE BODY test_utilisateur_tapi IS
-
-    -- ==========================================
-    -- GET
-    -- ==========================================
+    * Description  test de la fonction get_utilsateur  
+    *
+    * @version      2.0         version après correction 
+    *
+    *
+    * @author       Samuel Geoffroy
+    * @created      2026-11-15
+    */
 
     PROCEDURE get_utilisateur IS
         l_id_user utilisateur.id_user%TYPE;
@@ -55,9 +18,14 @@ CREATE OR REPLACE PACKAGE BODY test_utilisateur_tapi IS
         l_status VARCHAR2(50);
     BEGIN
         -- Arrange
-        SELECT MIN(id_user)
-        INTO l_id_user
-        FROM utilisateur;
+        l_reponse := utilisateur_tapi.ins_utilisateur(
+        p_nom      => 'Test GET',
+        p_password => 'Test123',
+        p_email    => 'testget@gmail.com',
+        p_test     => 'O'
+    );
+
+     l_id_user := JSON_VALUE(l_reponse, '$.data.id');
 
         -- Act
         l_reponse := utilisateur_tapi.get_utilisateur(l_id_user);
@@ -73,6 +41,24 @@ CREATE OR REPLACE PACKAGE BODY test_utilisateur_tapi IS
         ut.expect(l_status).to_equal('success');
 
     END get_utilisateur;
+
+
+    --%aftereach
+PROCEDURE rollback_after_test IS
+BEGIN
+    ROLLBACK;
+END rollback_after_test;
+
+    /**
+
+    * Description  test de l'exeption get_utilsateur_inxistant  
+    *
+    * @version      2.0         version après correction 
+    *
+    *
+    * @author       Samuel Geoffroy
+    * @created      2026-11-15
+    */
 
 
     PROCEDURE get_utilisateur_inexistant IS
@@ -92,10 +78,16 @@ CREATE OR REPLACE PACKAGE BODY test_utilisateur_tapi IS
 
     END get_utilisateur_inexistant;
 
+/**
 
-    -- ==========================================
-    -- DELETE
-    -- ==========================================
+    * Description  test de la fonction del_utilsateur  
+    *
+    * @version      2.0         version après correction 
+    *
+    *
+    * @author       Samuel Geoffroy
+    * @created      2026-11-15
+    */
 
     PROCEDURE del_utilisateur IS
         l_reponse VARCHAR2(4000);
@@ -134,6 +126,17 @@ CREATE OR REPLACE PACKAGE BODY test_utilisateur_tapi IS
 
     END del_utilisateur;
 
+    /**
+
+    * Description  test de l'exeption del_utilsateur_inexistant  
+    *
+    * @version      2.0         version après correction 
+    *
+    *
+    * @author       Samuel Geoffroy
+    * @created      2026-11-15
+    */
+
 
     PROCEDURE del_utilisateur_inexistant IS
         l_reponse VARCHAR2(4000);
@@ -154,6 +157,16 @@ CREATE OR REPLACE PACKAGE BODY test_utilisateur_tapi IS
         ut.expect(l_code).to_equal('-2');
 
     END del_utilisateur_inexistant;
+    /**
+
+    * Description  test de l'exeption del_utilsateur_id_null
+    *
+    * @version      2.0         version après correction 
+    *
+    *
+    * @author       Samuel Geoffroy
+    * @created      2026-11-15
+    */
 
 
     PROCEDURE del_utilisateur_id_null IS
@@ -177,9 +190,16 @@ CREATE OR REPLACE PACKAGE BODY test_utilisateur_tapi IS
     END del_utilisateur_id_null;
 
 
-    -- ==========================================
-    -- UPDATE
-    -- ==========================================
+/**
+
+    * Description  test de la fonction upd_utilsateur  
+    *
+    * @version      2.0         version après correction 
+    *
+    *
+    * @author       Samuel Geoffroy
+    * @created      2026-11-15
+    */
 
     PROCEDURE upd_utilisateur IS
         l_reponse_ins VARCHAR2(4000);
@@ -225,7 +245,16 @@ CREATE OR REPLACE PACKAGE BODY test_utilisateur_tapi IS
         ut.expect(l_nom_bd).to_equal('Utilisateur apres update');
 
     END upd_utilisateur;
+/**
 
+    * Description  test de l'exeption upd_utilsateur_id_null
+    *
+    * @version      2.0         version après correction 
+    *
+    *
+    * @author       Samuel Geoffroy
+    * @created      2026-11-15
+    */
 
     PROCEDURE upd_utilisateur_id_null IS
         l_reponse VARCHAR2(4000);
@@ -269,9 +298,16 @@ CREATE OR REPLACE PACKAGE BODY test_utilisateur_tapi IS
     END upd_utilisateur_inexistant;
 
 
-    -- ==========================================
-    -- INSERT
-    -- ==========================================
+    /**
+
+    * Description  test de la fonction ins_utilsateur  
+    *
+    * @version      2.0         version après correction 
+    *
+    *
+    * @author       Samuel Geoffroy
+    * @created      2026-11-15
+    */
 
     PROCEDURE ins_utilisateur IS
         l_reponse VARCHAR2(4000);
@@ -306,6 +342,16 @@ CREATE OR REPLACE PACKAGE BODY test_utilisateur_tapi IS
         ut.expect(l_status_code).to_equal(201);
 
     END ins_utilisateur;
+    /**
+
+    * Description  test de l'exeption ins_utilisateur_ex_params_obli  
+    *
+    * @version      2.0         version après correction 
+    *
+    *
+    * @author       Samuel Geoffroy
+    * @created      2026-11-15
+    */
 
 
     PROCEDURE ins_utilisateur_ex_params_obli IS
@@ -332,4 +378,3 @@ CREATE OR REPLACE PACKAGE BODY test_utilisateur_tapi IS
 
 
 END test_utilisateur_tapi;
-/
