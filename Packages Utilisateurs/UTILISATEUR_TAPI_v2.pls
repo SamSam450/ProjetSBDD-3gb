@@ -1,34 +1,4 @@
-CREATE OR REPLACE PACKAGE utilisateur_tapi IS
-  --select
-    FUNCTION get_utilisateur (
-        p_ID_user utilisateur.id_user%type
-    ) RETURN VARCHAR2;
-
-    -- delete
-    FUNCTION del_utilisateur (
-        p_id_user IN utilisateur.id_user%TYPE, p_test VARCHAR2 DEFAULT 'N'
-    )
-    return VARCHAR2;
-
-    -- update
-    FUNCTION upd_utilisateur (
-        p_id_user IN utilisateur.id_user%TYPE, p_nom IN utilisateur.nom%TYPE DEFAULT NULl, 
-        p_password IN utilisateur.motdepasse%TYPE DEFAULT NULL, p_email IN utilisateur.email%TYPE DEFAULT NULL,
-        p_test VARCHAR2 DEFAULT 'N'
-    )
-    return VARCHAR2;
-
-    -- insert
-    FUNCTION ins_utilisateur (
-         p_nom IN utilisateur.nom%TYPE, p_password IN utilisateur.motdepasse%TYPE, 
-         p_email IN utilisateur.email%TYPE DEFAULT NULL, p_test VARCHAR2 DEFAULT 'N')
-    return VARCHAR2;
-
-END utilisateur_tapi;
-/
-
-
-CREATE OR REPLACE PACKAGE BODY utilisateur_tapi AS
+create or replace PACKAGE BODY utilisateur_tapi AS
     -- variable global pour logger afin de contenir le nom du package
     gc_scope_prefix CONSTANT VARCHAR2(31) := lower($$plsql_unit) || '.';
  /**
@@ -40,11 +10,11 @@ CREATE OR REPLACE PACKAGE BODY utilisateur_tapi AS
     * @example      l_resultat := utilisateur_tapi.get_utilisateur (12);
     *
     * @issue        n/a
-    * @author       JF Brodeur/ Modification Samuel Geoffroy
-    * @created      2023-11-2
-    * @param        p_id_user           la clé primaire du cours à retourner les informations, si null retourne tous les cours
-    * @return       l_reponse           tableau JSON qui contient les informations des cours
-    * @exception    ex_aucun_user      si aucun cours ne correspond aux critères une exception Oracle est levée avec un code d erreur -20001
+    * @author       Samuel Geoffroy
+    * @created      2026-11-15
+    * @param        p_id_user           la clé primaire de l'utilisateur à retourner les informations, si null retourne tous les utilutilisateur.
+    * @return       l_reponse           tableau JSON qui contient les informations des utilisateurs
+    * @exception    ex_aucun_user      si aucun utilisateur ne correspond aux critères une exception Oracle est levée avec un code d erreur -20001
     * @exception    OTHERS              excepttion autre non traitée, retourné dans un objet JSON avec status et code d erreur -999
     */
     FUNCTION get_utilisateur (
@@ -57,18 +27,18 @@ CREATE OR REPLACE PACKAGE BODY utilisateur_tapi AS
         l_json_user    VARCHAR2(4000);
         l_error_mess    VARCHAR2(4000);
         l_error_code    NUMBER;
-        ex_aucun_cours  EXCEPTION;
+        ex_aucun_user  EXCEPTION;
     BEGIN
         logger.append_param(l_params, 'p_id_user ',p_id_user);
         logger.log('>>>DÉBUT de la procédure', l_scope, NULL, l_params);
-        -- Requête pour récupérer les cours au format JSON:API
+        -- Requête pour récupérer les utilisateurs au format JSON:API
         SELECT JSON_ARRAYAGG(
             JSON_OBJECT(
                 'type'  VALUE 'user',
                 'id'    VALUE id_user,
                 'attributes' VALUE JSON_OBJECT(
                     'nom'         VALUE nom,
-                    'Email' VALUE email,
+                    'email' VALUE email,
                     'password'           VALUE motdepasse
                 )
             )
@@ -80,7 +50,7 @@ CREATE OR REPLACE PACKAGE BODY utilisateur_tapi AS
 
 
         IF l_json_user IS NULL THEN
-            RAISE ex_aucun_cours;
+            RAISE ex_aucun_user;
         END IF;
 
         -- Formatage de la réponse conforme à JSON:API
@@ -96,16 +66,16 @@ CREATE OR REPLACE PACKAGE BODY utilisateur_tapi AS
         logger.log('>>>FIN de la procédure', l_scope, NULL, l_params);
         RETURN l_reponse;
     EXCEPTION
-        WHEN ex_aucun_cours THEN
-            ROLLBACK;
-            logger.log_error('>>>ERREUR de de type ex_aucun_cours', l_scope, null, l_params);
+        WHEN ex_aucun_user THEN
+
+            logger.log_error('>>>ERREUR de de type ex_aucun_user', l_scope, null, l_params);
             -- Gestion de l'exception directement en PL/SQL au lieu de faire un RAISE_APPLICATION_ERROR
             l_reponse := JSON_OBJECT(
                 'errors' VALUE JSON_ARRAY(
                     JSON_OBJECT(
                         'status'  VALUE '404',
-                        'title'   VALUE 'Cours non trouvé',
-                        'detail'  VALUE 'Aucun cours trouvé pour cette recherche',
+                        'title'   VALUE 'Utilisateur non trouvé',
+                        'detail'  VALUE 'Aucun Utilisateur trouvé pour cette recherche',
                         'code'    VALUE TO_CHAR(-20001),
                         'meta'    VALUE JSON_OBJECT(
                             'timestamp' VALUE TO_CHAR(SYSDATE, 'YYYY-MM-DD"T"HH24:MI:SS')
@@ -140,14 +110,14 @@ CREATE OR REPLACE PACKAGE BODY utilisateur_tapi AS
     *
     * @version      2.1.0               refonte pour traiter les exceptions en tableau JSON et ajout de status et format JSON:API
     *
-    * @example      utilisateur_tapi.del_utilisateur (12);
+    * @example     l_resultat := utilisateur_tapi.del_utilisateur (12);
     *
     * @issue: n/a
     *
-    * @author       JF Brodeur/ Modification par Samuel Geoffroy 
-    * @created      2023-11-2
+    * @author       Samuel Geoffroy 
+    * @created      2026-11-15
     * @param        p_id_user            la clé primaire de l'utlisateur  à supprimer
-    * @return       l_reponse           objet JSON avec un status et la clé primaire id_cours du cours créée
+    * @return       l_reponse           objet JSON avec un status et la clé primaire id_user créée
     * @exception    ex_id_is_null       si le paramètre p_id_user est null, retourne dans un objet JSON avec status et code d erreur -1
     * @exception    ex_id_inexistant    si aucune rangée dans la table ne correspond au p_id_user, code d erreur -2
     * @exception    OTHERS              excepttion autre non traitée, retourné dans un objet JSON avec status et code d erreur -999
@@ -181,7 +151,7 @@ CREATE OR REPLACE PACKAGE BODY utilisateur_tapi AS
         IF p_test = 'N' THEN
             COMMIT;
         END IF;
-        --creation d un objet JSON avec le status et l id_cours effacé en format JSON:API
+        --creation d un objet JSON avec le status et l id_user effacé en format JSON:API
         l_reponse := JSON_OBJECT(
             'data' VALUE JSON_OBJECT(
                 'type'  VALUE 'utilisateur',
@@ -224,7 +194,7 @@ CREATE OR REPLACE PACKAGE BODY utilisateur_tapi AS
                     JSON_OBJECT(
                         'status'  VALUE '404',
                         'title'   VALUE 'Utilisateur non trouvé',
-                        'detail'  VALUE 'Erreur id inexistant '|| p_id_user ||' lors de l effacement du cours',
+                        'detail'  VALUE 'Erreur id inexistant '|| p_id_user ||' lors de l effacement de lutilisateur',
                         'code'    VALUE TO_CHAR(-2),
                         'meta'    VALUE JSON_OBJECT(
                             'timestamp' VALUE TO_CHAR(SYSDATE, 'YYYY-MM-DD"T"HH24:MI:SS')
@@ -264,13 +234,13 @@ CREATE OR REPLACE PACKAGE BODY utilisateur_tapi AS
     *
     * @issue        problème xyz
     *
-    * @author       JF Brodeur /Modification par Samuel Geoffroy 
-    * @created      2023-11-2
+    * @author       Samuel Geoffroy 
+    * @created      2026-11-15
     * @param        p_id_user           la clé primaire de l'utilisateur qu'on veut update   
     * @param        p_nom               le nom de l'utilisateur 
     * @param        p_email             l'email de l'utilisateur
     * @param        p_password          le mot de passe de l'utilisateur
-    * @return       l_reponse           objet JSON avec un status et la clé primaire id_cours du cours créée
+    * @return       l_reponse           objet JSON avec un status et la clé primaire id_utilisateur de lutilisateur créée
     * @exception    ex_id_is_null       si le paramètre p_id_user est null, retourne dans un objet JSON avec status et code d erreur -1
     * @exception    OTHERS              excepttion autre non traitée, retourné dans un objet JSON avec status et code d erreur -999
     */
@@ -309,7 +279,9 @@ CREATE OR REPLACE PACKAGE BODY utilisateur_tapi AS
            email = coalesce (p_email, rec_utilisateur.email),
            motdepasse = coalesce (p_password, rec_utilisateur.motdepasse)
         WHERE
-            id_user = p_id_user;
+            id_user = p_id_user
+       RETURNING id_user , nom , email, motdepasse INTO rec_utilisateur;
+        logger.log('>>> Après Returning ', l_scope, NULL, l_params);
 
         l_nbre_rangee := sql%rowcount;
         logger.append_param(l_params, 'sql%l_nbre_rangee: ', l_nbre_rangee);
@@ -323,9 +295,9 @@ CREATE OR REPLACE PACKAGE BODY utilisateur_tapi AS
                 'type'       VALUE 'utilisateur',
                 'id'         VALUE p_id_user,
                 'attributes' VALUE JSON_OBJECT(
-                    'nom'              VALUE p_nom,
-                    'email'            VALUE p_email,
-                    'motDePasse'       VALUE p_password
+                    'nom'              VALUE rec_utilisateur.nom,
+                    'email'            VALUE rec_utilisateur.email,
+                    'password'         VALUE rec_utilisateur.motdepasse
                 )
             ),
             'meta' VALUE JSON_OBJECT(
@@ -402,13 +374,13 @@ CREATE OR REPLACE PACKAGE BODY utilisateur_tapi AS
     *
     * @issue        problème xyz
     *
-    * @author       JF Brodeur/ Modification par Samuel Geoffroy
-    * @created      2023-11-2
+    * @author       Samuel Geoffroy
+    * @created      2026-11-15
     * @param        p_nom               Nom et Prénom du nouvel utilisateur
     * @param        p_email             l'email de l'utilisateur NULL par défault 
     * @param        p_password          le mot de passe de l'utilisateur
     * @param        p_test              paramètre pour ne pas sauvegarder les tests, si 'N' alors commit 'N' par Default
-    * @return       l_reponse           objet JSON avec un status et la clé primaire id_cours du cours créée
+    * @return       l_reponse           objet JSON avec un status et la clé primaire id_user de l'utilisateur créée
     * @exception    ex_params_obli_null  si le nom ou le mot de passe est null, retourné dans un objet JSON avec status et code d erreur -1400
     * @exception    OTHERS              excepttion autre non traitée, retourné dans un objet JSON avec status et code d erreur -999
     */
@@ -448,7 +420,7 @@ CREATE OR REPLACE PACKAGE BODY utilisateur_tapi AS
             'id'         VALUE l_id_user,
             'attributes' VALUE JSON_OBJECT(
                 'nom'              VALUE p_nom,
-                'motDePasse'       VALUE p_password,
+                'password'       VALUE p_password,
                 'email'            VALUE p_email
             )
             ),
@@ -466,14 +438,14 @@ CREATE OR REPLACE PACKAGE BODY utilisateur_tapi AS
             l_error_mess := sqlerrm;
             l_error_code := sqlcode;
             ROLLBACK;
-            logger.log_error('>>>ERREUR de type ex_nom_cours_null', l_scope, null, l_params);
+            logger.log_error('>>>ERREUR de type ex_nom_user_null', l_scope, null, l_params);
             --creation d un objet JSON avec un status et un code d erreur - https://blog.postman.com/best-practices-for-api-error-handling/
             l_reponse := JSON_OBJECT(
                 'errors' VALUE JSON_ARRAY(
                 JSON_OBJECT(
                     'status'  VALUE '400',
                     'title'   VALUE 'Nom ou mot de passe de lutlisateur requis',
-                    'detail'  VALUE 'Erreur nom ou motdepass null lors de l insertion du cours ORA-01400',
+                    'detail'  VALUE 'Erreur nom ou motdepass null lors de l insertion de lutilisateur ORA-01400',
                     'code'    VALUE TO_CHAR(l_error_code),
                     'meta'    VALUE JSON_OBJECT('timestamp' VALUE TO_CHAR(SYSDATE, 'YYYY-MM-DD"T"HH24:MI:SS')
                     )
@@ -503,4 +475,3 @@ CREATE OR REPLACE PACKAGE BODY utilisateur_tapi AS
             RETURN l_reponse;
     END ins_utilisateur;
 END;
-/
