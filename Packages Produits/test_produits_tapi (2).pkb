@@ -1,13 +1,21 @@
 Prompt Création du package body de tests test_produits_tapi.
 CREATE OR REPLACE PACKAGE BODY test_produits_tapi IS
 
-    -- 'Y' : pas de COMMIT dans produits_tapi
-    g_mode_test   CONSTANT VARCHAR2(1) := 'Y';
+    -- 'O' : pas de COMMIT dans produits_tapi
+    g_mode_test   CONSTANT VARCHAR2(1) := 'O';
 
-    -- Id d'une categorie existante
-    g_id_categorie CONSTANT NUMBER := 1;
+    -- Utilitaire privé : crée une catégorie de test et retourne son id
+    -- (table catégorie, clé primaire id_categorie)
+    FUNCTION creer_categorie_test RETURN NUMBER IS
+        l_id_categorie NUMBER;
+    BEGIN
+        INSERT INTO catégorie (nom)
+        VALUES ('Catégorie de test')
+        RETURNING id_categorie INTO l_id_categorie;
+        RETURN l_id_categorie;
+    END creer_categorie_test;
 
-    -- Utilitaire prive : insere un produit de test et retourne son id
+    -- Utilitaire privé : insère un produit de test et retourne son id
     FUNCTION creer_produit_test (
         p_nom IN produits.nom%TYPE
     ) RETURN produits.id_produit%TYPE IS
@@ -17,7 +25,7 @@ CREATE OR REPLACE PACKAGE BODY test_produits_tapi IS
             p_prix                   => 19.99,
             p_qte_dispo              => 10,
             p_description            => 'Produit de test',
-            p_catégorie_id_catégorie => g_id_categorie,
+            p_catégorie_id_catégorie => creer_categorie_test,
             p_nom                    => p_nom,
             p_test                   => g_mode_test
         );
@@ -29,19 +37,23 @@ CREATE OR REPLACE PACKAGE BODY test_produits_tapi IS
     -- ==========================================
 
     PROCEDURE ins_produit IS
-        l_reponse     VARCHAR2(4000);
-        l_id_produit  produits.id_produit%TYPE;
-        l_status      VARCHAR2(50);
-        l_status_code NUMBER;
-        l_nom_retour  VARCHAR2(200);
-        l_nb          NUMBER;
+        l_id_categorie NUMBER;
+        l_reponse      VARCHAR2(4000);
+        l_id_produit   produits.id_produit%TYPE;
+        l_status       VARCHAR2(50);
+        l_status_code  NUMBER;
+        l_nom_retour   VARCHAR2(200);
+        l_nb           NUMBER;
     BEGIN
+        -- Arrange
+        l_id_categorie := creer_categorie_test;
+
         -- Act
         l_reponse := produits_tapi.ins_produit(
             p_prix                   => 19.99,
             p_qte_dispo              => 10,
             p_description            => 'Gâteau au chocolat noir',
-            p_catégorie_id_catégorie => g_id_categorie,
+            p_catégorie_id_catégorie => l_id_categorie,
             p_nom                    => 'Gâteau test insert',
             p_test                   => g_mode_test
         );
@@ -63,41 +75,108 @@ CREATE OR REPLACE PACKAGE BODY test_produits_tapi IS
     END ins_produit;
 
 
+    PROCEDURE ins_produit_prix_null IS
+        l_reponse VARCHAR2(4000);
+    BEGIN
+        -- Act
+        l_reponse := produits_tapi.ins_produit(
+            p_prix                   => NULL,
+            p_catégorie_id_catégorie => creer_categorie_test,
+            p_nom                    => 'Produit sans prix',
+            p_test                   => g_mode_test
+        );
+        DBMS_OUTPUT.PUT_LINE('l_reponse: ' || l_reponse);
+
+        -- Assert
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].status')).to_equal('400');
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].detail')).to_equal('Le prix du produit est obligatoire');
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[1]')).to_be_null();
+    END ins_produit_prix_null;
+
+
+    PROCEDURE ins_produit_prix_negatif IS
+        l_reponse VARCHAR2(4000);
+    BEGIN
+        -- Act
+        l_reponse := produits_tapi.ins_produit(
+            p_prix                   => -1,
+            p_catégorie_id_catégorie => creer_categorie_test,
+            p_nom                    => 'Produit prix négatif',
+            p_test                   => g_mode_test
+        );
+        DBMS_OUTPUT.PUT_LINE('l_reponse: ' || l_reponse);
+
+        -- Assert
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].status')).to_equal('400');
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].detail')).to_equal('Le prix du produit doit être supérieur ou égal à 0');
+    END ins_produit_prix_negatif;
+
+
+    PROCEDURE ins_produit_categorie_null IS
+        l_reponse VARCHAR2(4000);
+    BEGIN
+        -- Act
+        l_reponse := produits_tapi.ins_produit(
+            p_prix                   => 19.99,
+            p_catégorie_id_catégorie => NULL,
+            p_nom                    => 'Produit sans catégorie',
+            p_test                   => g_mode_test
+        );
+        DBMS_OUTPUT.PUT_LINE('l_reponse: ' || l_reponse);
+
+        -- Assert
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].status')).to_equal('400');
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].detail')).to_equal('La catégorie du produit est obligatoire');
+    END ins_produit_categorie_null;
+
+
     PROCEDURE ins_produit_nom_null IS
         l_reponse VARCHAR2(4000);
-        l_code    VARCHAR2(20);
-        l_status  VARCHAR2(10);
     BEGIN
         -- Act
         l_reponse := produits_tapi.ins_produit(
             p_prix                   => 19.99,
             p_qte_dispo              => 10,
             p_description            => 'Produit sans nom',
-            p_catégorie_id_catégorie => g_id_categorie,
+            p_catégorie_id_catégorie => creer_categorie_test,
             p_nom                    => NULL,
             p_test                   => g_mode_test
         );
         DBMS_OUTPUT.PUT_LINE('l_reponse: ' || l_reponse);
 
         -- Assert
-        l_code   := COALESCE(JSON_VALUE(l_reponse, '$.errors[0].code'), '-99999');
-        l_status := JSON_VALUE(l_reponse, '$.errors[0].status');
-
-        ut.expect(l_code).to_equal('-1400');
-        ut.expect(l_status).to_equal('400');
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].status')).to_equal('400');
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].detail')).to_equal('Le nom du produit est obligatoire');
     END ins_produit_nom_null;
+
+
+    PROCEDURE ins_produit_plusieurs_erreurs IS
+        l_reponse VARCHAR2(4000);
+    BEGIN
+        -- Act
+        l_reponse := produits_tapi.ins_produit(
+            p_prix                   => NULL,
+            p_catégorie_id_catégorie => NULL,
+            p_nom                    => NULL,
+            p_test                   => g_mode_test
+        );
+        DBMS_OUTPUT.PUT_LINE('l_reponse: ' || l_reponse);
+
+        -- Assert
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].detail')).to_equal('Le prix du produit est obligatoire');
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[1].detail')).to_equal('La catégorie du produit est obligatoire');
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[2].detail')).to_equal('Le nom du produit est obligatoire');
+    END ins_produit_plusieurs_erreurs;
 
 
     PROCEDURE ins_produit_categorie_inexistante IS
         l_reponse VARCHAR2(4000);
-        l_code    VARCHAR2(20);
-        l_status  VARCHAR2(10);
     BEGIN
         -- Act
         l_reponse := produits_tapi.ins_produit(
             p_prix                   => 19.99,
             p_qte_dispo              => 10,
-            p_description            => 'Produit categorie invalide',
+            p_description            => 'Produit catégorie invalide',
             p_catégorie_id_catégorie => -99999,
             p_nom                    => 'Produit FK invalide',
             p_test                   => g_mode_test
@@ -105,11 +184,8 @@ CREATE OR REPLACE PACKAGE BODY test_produits_tapi IS
         DBMS_OUTPUT.PUT_LINE('l_reponse: ' || l_reponse);
 
         -- Assert
-        l_code   := COALESCE(JSON_VALUE(l_reponse, '$.errors[0].code'), '-99999');
-        l_status := JSON_VALUE(l_reponse, '$.errors[0].status');
-
-        ut.expect(l_code).to_equal('-2291');
-        ut.expect(l_status).to_equal('500');
+        ut.expect(COALESCE(JSON_VALUE(l_reponse, '$.errors[0].code'), '-99999')).to_equal('-2291');
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].status')).to_equal('404');
     END ins_produit_categorie_inexistante;
 
 
@@ -189,8 +265,6 @@ CREATE OR REPLACE PACKAGE BODY test_produits_tapi IS
 
     PROCEDURE upd_produit_id_null IS
         l_reponse VARCHAR2(4000);
-        l_code    VARCHAR2(20);
-        l_status  VARCHAR2(10);
     BEGIN
         -- Act
         l_reponse := produits_tapi.upd_produit(
@@ -200,18 +274,13 @@ CREATE OR REPLACE PACKAGE BODY test_produits_tapi IS
         DBMS_OUTPUT.PUT_LINE('l_reponse: ' || l_reponse);
 
         -- Assert
-        l_code   := COALESCE(JSON_VALUE(l_reponse, '$.errors[0].code'), '-99999');
-        l_status := JSON_VALUE(l_reponse, '$.errors[0].status');
-
-        ut.expect(l_code).to_equal('-1');
-        ut.expect(l_status).to_equal('400');
+        ut.expect(COALESCE(JSON_VALUE(l_reponse, '$.errors[0].code'), '-99999')).to_equal('-1');
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].status')).to_equal('400');
     END upd_produit_id_null;
 
 
     PROCEDURE upd_produit_inexistant IS
         l_reponse VARCHAR2(4000);
-        l_code    VARCHAR2(20);
-        l_status  VARCHAR2(10);
     BEGIN
         -- Act
         l_reponse := produits_tapi.upd_produit(
@@ -222,11 +291,8 @@ CREATE OR REPLACE PACKAGE BODY test_produits_tapi IS
         DBMS_OUTPUT.PUT_LINE('l_reponse: ' || l_reponse);
 
         -- Assert
-        l_code   := COALESCE(JSON_VALUE(l_reponse, '$.errors[0].code'), '-99999');
-        l_status := JSON_VALUE(l_reponse, '$.errors[0].status');
-
-        ut.expect(l_code).to_equal('100');
-        ut.expect(l_status).to_equal('404');
+        ut.expect(COALESCE(JSON_VALUE(l_reponse, '$.errors[0].code'), '-99999')).to_equal('100');
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].status')).to_equal('404');
     END upd_produit_inexistant;
 
 
@@ -268,37 +334,27 @@ CREATE OR REPLACE PACKAGE BODY test_produits_tapi IS
 
     PROCEDURE del_produit_id_null IS
         l_reponse VARCHAR2(4000);
-        l_code    VARCHAR2(20);
-        l_status  VARCHAR2(10);
     BEGIN
         -- Act
         l_reponse := produits_tapi.del_produit(NULL, g_mode_test);
         DBMS_OUTPUT.PUT_LINE('l_reponse: ' || l_reponse);
 
         -- Assert
-        l_code   := COALESCE(JSON_VALUE(l_reponse, '$.errors[0].code'), '-99999');
-        l_status := JSON_VALUE(l_reponse, '$.errors[0].status');
-
-        ut.expect(l_code).to_equal('-1');
-        ut.expect(l_status).to_equal('400');
+        ut.expect(COALESCE(JSON_VALUE(l_reponse, '$.errors[0].code'), '-99999')).to_equal('-1');
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].status')).to_equal('400');
     END del_produit_id_null;
 
 
     PROCEDURE del_produit_inexistant IS
         l_reponse VARCHAR2(4000);
-        l_code    VARCHAR2(20);
-        l_status  VARCHAR2(10);
     BEGIN
         -- Act
         l_reponse := produits_tapi.del_produit(-99999, g_mode_test);
         DBMS_OUTPUT.PUT_LINE('l_reponse: ' || l_reponse);
 
         -- Assert
-        l_code   := COALESCE(JSON_VALUE(l_reponse, '$.errors[0].code'), '-99999');
-        l_status := JSON_VALUE(l_reponse, '$.errors[0].status');
-
-        ut.expect(l_code).to_equal('-2');
-        ut.expect(l_status).to_equal('404');
+        ut.expect(COALESCE(JSON_VALUE(l_reponse, '$.errors[0].code'), '-99999')).to_equal('-2');
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].status')).to_equal('404');
     END del_produit_inexistant;
 
 
@@ -333,27 +389,20 @@ CREATE OR REPLACE PACKAGE BODY test_produits_tapi IS
 
     PROCEDURE get_produit_inexistant IS
         l_reponse VARCHAR2(4000);
-        l_code    VARCHAR2(20);
-        l_status  VARCHAR2(10);
     BEGIN
         -- Act
         l_reponse := produits_tapi.get_produit(p_id_produit => -99999);
         DBMS_OUTPUT.PUT_LINE('l_reponse: ' || l_reponse);
 
         -- Assert
-        l_code   := COALESCE(JSON_VALUE(l_reponse, '$.errors[0].code'), '-99999');
-        l_status := JSON_VALUE(l_reponse, '$.errors[0].status');
-
-        ut.expect(l_code).to_equal('-20001');
-        ut.expect(l_status).to_equal('404');
+        ut.expect(COALESCE(JSON_VALUE(l_reponse, '$.errors[0].code'), '-99999')).to_equal('-20001');
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].status')).to_equal('404');
     END get_produit_inexistant;
 
 
     PROCEDURE get_produit_tous IS
         l_id_produit  produits.id_produit%TYPE;
         l_reponse     VARCHAR2(4000);
-        l_status      VARCHAR2(50);
-        l_premier_id  VARCHAR2(50);
     BEGIN
         -- Arrange
         l_id_produit := creer_produit_test('Produit liste');
@@ -363,20 +412,14 @@ CREATE OR REPLACE PACKAGE BODY test_produits_tapi IS
         DBMS_OUTPUT.PUT_LINE('l_reponse: ' || l_reponse);
 
         -- Assert
-        l_status     := JSON_VALUE(l_reponse, '$.meta.status');
-        l_premier_id := JSON_VALUE(l_reponse, '$.data[0].id');
-
-        ut.expect(l_status).to_equal('success');
-        ut.expect(l_premier_id).to_be_not_null();
+        ut.expect(JSON_VALUE(l_reponse, '$.meta.status')).to_equal('success');
+        ut.expect(JSON_VALUE(l_reponse, '$.data[0].id')).to_be_not_null();
     END get_produit_tous;
 
 
-    PROCEDURE get_produit_pagination_limite IS
+    PROCEDURE get_produit_pagination_taille IS
         l_id_1       produits.id_produit%TYPE;
         l_reponse    VARCHAR2(4000);
-        l_limit_meta NUMBER;
-        l_offset     NUMBER;
-        l_troisieme  VARCHAR2(50);
     BEGIN
         -- Arrange
         l_id_1 := creer_produit_test('Pagination 1');
@@ -386,69 +429,53 @@ CREATE OR REPLACE PACKAGE BODY test_produits_tapi IS
         -- Act
         l_reponse := produits_tapi.get_produit(
             p_id_produit => NULL,
-            p_limite     => 2,
             p_debut      => 0,
-            p_taille     => 4
+            p_taille     => 2
         );
         DBMS_OUTPUT.PUT_LINE('l_reponse: ' || l_reponse);
 
         -- Assert
-        l_limit_meta := TO_NUMBER(JSON_VALUE(l_reponse, '$.meta.pagination.limit'));
-        l_offset     := TO_NUMBER(JSON_VALUE(l_reponse, '$.meta.pagination.offset'));
-        l_troisieme  := JSON_VALUE(l_reponse, '$.data[2].id');
-
-        ut.expect(l_limit_meta).to_equal(2);
-        ut.expect(l_offset).to_equal(0);
-        ut.expect(l_troisieme).to_be_null();
-    END get_produit_pagination_limite;
+        ut.expect(TO_NUMBER(JSON_VALUE(l_reponse, '$.meta.pagination.limit'))).to_equal(2);
+        ut.expect(TO_NUMBER(JSON_VALUE(l_reponse, '$.meta.pagination.offset'))).to_equal(0);
+        ut.expect(JSON_VALUE(l_reponse, '$.data[1].id')).to_be_not_null();
+        ut.expect(JSON_VALUE(l_reponse, '$.data[2].id')).to_be_null();
+    END get_produit_pagination_taille;
 
 
-    PROCEDURE get_produit_pagination_taille_max IS
-        l_id_1       produits.id_produit%TYPE;
-        l_reponse    VARCHAR2(4000);
-        l_limit_meta NUMBER;
+    PROCEDURE get_produit_debut_hors_limite IS
+        l_id_produit  produits.id_produit%TYPE;
+        l_reponse     VARCHAR2(4000);
     BEGIN
         -- Arrange
-        l_id_1 := creer_produit_test('Taille max');
+        l_id_produit := creer_produit_test('Produit offset');
 
+        -- Act : un seul produit correspond, l'offset 1 dépasse la dernière ligne
+        l_reponse := produits_tapi.get_produit(
+            p_id_produit => l_id_produit,
+            p_debut      => 1,
+            p_taille     => 1
+        );
+        DBMS_OUTPUT.PUT_LINE('l_reponse: ' || l_reponse);
+
+        -- Assert
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].status')).to_equal('404');
+    END get_produit_debut_hors_limite;
+
+
+    PROCEDURE get_produit_taille_invalide IS
+        l_reponse VARCHAR2(4000);
+    BEGIN
         -- Act
         l_reponse := produits_tapi.get_produit(
             p_id_produit => NULL,
-            p_limite     => 10,
             p_debut      => 0,
-            p_taille     => 4
+            p_taille     => 0
         );
         DBMS_OUTPUT.PUT_LINE('l_reponse: ' || l_reponse);
 
         -- Assert
-        l_limit_meta := TO_NUMBER(JSON_VALUE(l_reponse, '$.meta.pagination.limit'));
-
-        ut.expect(l_limit_meta).to_equal(4);
-    END get_produit_pagination_taille_max;
-
-
-    PROCEDURE get_produit_pagination_limite_zero IS
-        l_id_1       produits.id_produit%TYPE;
-        l_reponse    VARCHAR2(4000);
-        l_limit_meta NUMBER;
-    BEGIN
-        -- Arrange
-        l_id_1 := creer_produit_test('Limite zero');
-
-        -- Act
-        l_reponse := produits_tapi.get_produit(
-            p_id_produit => NULL,
-            p_limite     => 0,
-            p_debut      => 0,
-            p_taille     => 3
-        );
-        DBMS_OUTPUT.PUT_LINE('l_reponse: ' || l_reponse);
-
-        -- Assert
-        l_limit_meta := TO_NUMBER(JSON_VALUE(l_reponse, '$.meta.pagination.limit'));
-
-        ut.expect(l_limit_meta).to_equal(3);
-    END get_produit_pagination_limite_zero;
+        ut.expect(JSON_VALUE(l_reponse, '$.errors[0].status')).to_equal('400');
+    END get_produit_taille_invalide;
 
 END test_produits_tapi;
 /
